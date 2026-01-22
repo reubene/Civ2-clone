@@ -15,14 +15,12 @@ using Raylib_CSharp.Interact;
 using Raylib_CSharp.Transformations;
 using Raylib_CSharp.Images;
 using Raylib_CSharp.Textures;
-using RaylibUtils;
-using static Model.Menu.CommandIds;
-using Civ2.Dialogs.Scenario;
-using Civ2engine.OriginalSaves;
 using Model.Constants;
 using Model.Core;
 using Model.Core.Advances;
 using Model.Dialog;
+using Model.Graphics;
+using Rectangle = Model.Rectangle;
 
 namespace Civ2;
 
@@ -135,8 +133,8 @@ public abstract class Civ2Interface : IUserInterface
     public UnitSet UnitImages { get; } = new();
 
     public Dictionary<string, PopupBox?> Dialogs { get; set; }
-    public abstract void LoadPlayerColours();
-    public PlayerColour[] PlayerColours { get; set; }
+
+    public abstract IEnumerable<PlayerColourSource> GetPlayerColours();
     public int ExpectedMaps { get; set; } = 1;
     public CommonMapImageSet MapImages { get; } = new();
     public int DefaultDialogWidth => 660; // 660=440*1.5
@@ -226,9 +224,8 @@ public abstract class Civ2Interface : IUserInterface
     {
         if (_cityWindowLayout != null) return _cityWindowLayout;
 
-        float buttonHeight = 24;
-
-        const float buyButtonWidth = 68;
+        const int buttonHeight = 24;
+        const int buyButtonWidth = 68;
         const int infoButtonWidth = 57;
 
         _cityWindowLayout = new CityWindowLayout(new BitmapStorage("city", new Rectangle(0, 0, 640, 421)))
@@ -397,6 +394,7 @@ public abstract class Civ2Interface : IUserInterface
     public abstract bool IsButtonInOuterPanel { get; }
     
     public int InterfaceIndex { get; set; }
+    public int MaxCivs { get; protected set; } = 7;
 
     public IInterfaceAction HandleLoadScenario(IGame game, string scnName, string scnDirectory)
     {
@@ -463,8 +461,8 @@ public abstract class Civ2Interface : IUserInterface
         if (quickStart)
         {
             Initialization.ConfigObject.QuickStart = true;
-            Initialization.ConfigObject.WorldSize = new[] { 50, 80 };
-            Initialization.ConfigObject.NumberOfCivs = this.PlayerColours.Length - 1;
+            Initialization.ConfigObject.WorldSize = [50, 80];
+            Initialization.ConfigObject.NumberOfCivs = 7; // The traditional number for a civ2 game
             Initialization.ConfigObject.BarbarianActivity = Initialization.ConfigObject.Random.Next(5);
             
             Initialization.ConfigObject.MapTask = MapGenerator.GenerateMap(Initialization.ConfigObject);

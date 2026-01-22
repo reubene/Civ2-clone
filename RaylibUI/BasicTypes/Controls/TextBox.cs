@@ -9,6 +9,7 @@ using Model;
 using Model.Interface;
 using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Fonts;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.Controls;
 

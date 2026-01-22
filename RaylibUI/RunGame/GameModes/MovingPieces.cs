@@ -16,7 +16,9 @@ using Raylib_CSharp.Transformations;
 using RaylibUI.BasicTypes.Controls;
 using RaylibUI.RunGame.GameControls;
 using RaylibUI.RunGame.GameControls.Mapping.Views;
+using RaylibUtils;
 using Path = Civ2engine.Units.Path;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameModes;
 
@@ -33,7 +35,7 @@ public class MovingPieces : IGameMode
         _gameScreen = gameScreen;
         _look = gameScreen.MainWindow.ActiveInterface.Look;
 
-        _title = new LabelControl(gameScreen, Labels.For(LabelIndex.MovingUnits), true, alignment: TextAlignment.Center, font: _look.StatusPanelLabelFont, fontSize: 18, spacing: 0, colorFront: _look.MovingUnitsViewingPiecesLabelColor, colorShadow: _look.MovingUnitsViewingPiecesLabelColorShadow, shadowOffset: new Vector2(1, 0));
+        _title = new LabelControl(gameScreen, Labels.For(LabelIndex.MovingUnits), true, alignment: TextAlignment.Center, font: _look.StatusPanelLabelFont, fontSize: 18, spacing: 0, colorFront: _look.MovingUnitsViewingPiecesLabelColor.AsRl(), colorShadow: _look.MovingUnitsViewingPiecesLabelColorShadow.AsRl(), shadowOffset: new Vector2(1, 0));
 
         Actions = new Dictionary<Shortcut, Action<IGame>>
         {
@@ -161,7 +163,7 @@ public class MovingPieces : IGameMode
         // Active unit
         var activeUnit = _gameScreen.Player.ActiveUnit;
         var unitDisplay = new UnitDisplay(_gameScreen, activeUnit, _gameScreen.Game,
-            new Vector2(currentX, currentY), _gameScreen.Main.ActiveInterface, ImageUtils.ZoomScale(unitZoom));
+            new Vector2(currentX, currentY), _gameScreen.Main.ActiveInterface,  _gameScreen.PlayerColours, _gameScreen.Main.ActiveRuleSet.Paths, scale: ImageUtils.ZoomScale(unitZoom));
         controls.Add(unitDisplay);
 
         // Show move points correctly
@@ -299,7 +301,7 @@ public class MovingPieces : IGameMode
             nameLabelWidth = nameLabel.TextSize.X;
 
             unitDisplay = new UnitDisplay(_gameScreen, unit, _gameScreen.Game, new Vector2(currentX, currentY), 
-                _gameScreen.Main.ActiveInterface, ImageUtils.ZoomScale(unitZoom));
+                _gameScreen.Main.ActiveInterface,  _gameScreen.PlayerColours, _gameScreen.Main.ActiveRuleSet.Paths, scale: ImageUtils.ZoomScale(unitZoom));
 
             var moveText = unitsLeftOnTile.Count - i == 1 ? Labels.For(LabelIndex.Unit) : Labels.For(LabelIndex.Units);
             var unitsLeftLabel = new StatusLabel(_gameScreen, $"({unitsLeftOnTile.Count - i} {Labels.For(LabelIndex.More)} {moveText})", fontSize: fontSize);

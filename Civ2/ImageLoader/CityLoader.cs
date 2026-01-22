@@ -9,6 +9,7 @@ using Model.ImageSets;
 using Raylib_CSharp.Transformations;
 using RaylibUI;
 using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace Civ2.ImageLoader;
 
@@ -22,8 +23,8 @@ public static class CityLoader
             var sets = new CityImage[8];
             for (int col = 0; col < 8; col++)
             {
-                var props = Images.ExtractBitmapData(active.PicSources["city"][8 * row + col], active); // put into cache
-                cities.CityRectangle = new Rectangle(0, 0, props.Image.Width, props.Image.Height);
+                var props = Images.ExtractBitmapData(active.PicSources["city"][8 * row + col], ruleset.Paths); // put into cache
+                cities.CityRectangle = new Model.Rectangle(0, 0, props.Image.Width, props.Image.Height);
 
                 sets[col] = new CityImage()
                 {
@@ -35,9 +36,6 @@ public static class CityLoader
 
             cities.Sets.Add(sets);
         }
-
-        // Colours
-        active.LoadPlayerColours();
 
         if (active.TileSets.Count == 0)
         {

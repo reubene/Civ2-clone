@@ -6,6 +6,7 @@ using Civ2engine.Enums;
 using Civ2engine.Events;
 using Civ2engine.MapObjects;
 using Model;
+using Model.Images;
 using Model.ImageSets;
 using Model.Interface;
 using Raylib_CSharp.Colors;
@@ -16,7 +17,7 @@ using Raylib_CSharp.Textures;
 using Raylib_CSharp.Transformations;
 using RaylibUI.RunGame.GameControls.Mapping.Views.ViewElements;
 using RaylibUtils;
-using ExtensionMethods;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls.Mapping.Views;
 
@@ -240,7 +241,7 @@ public abstract class BaseGameView : IGameView
             var cityImage = cities.Sets[cityStyleIndex][sizeIncrement];
             var cityPos = posVector with{ Y = posVector.Y + Dimensions.TileHeight - TextureCache.GetImage(cityImage.Image).Height.ZoomScale(gameScreen.Zoom) };
             elements.Add(new CityData(
-                color: activeInterface.PlayerColours[playerKnowledge.CityHere.OwnerId],
+                color: gameScreen.PlayerColours[playerKnowledge.CityHere.OwnerId],
                 name: playerKnowledge.CityHere.Name,
                 size: playerKnowledge.CityHere.Size,
                 sizeRectLoc: cityImage.SizeLoc,
@@ -248,7 +249,7 @@ public abstract class BaseGameView : IGameView
                 location: cityPos, tile: tile));
             if (tile.UnitsHere.Count > 0)
             {
-                var flagTexture = TextureCache.GetImage(activeInterface.PlayerColours[playerKnowledge.CityHere.OwnerId].Image);
+                var flagTexture = TextureCache.GetImage(_gameScreen.PlayerColours[playerKnowledge.CityHere.OwnerId].Image);
                 var flagOffset = cityImage.FlagLoc - new Vector2(0, flagTexture.Height - 5);
                 elements.Add(new TextureElement(texture: flagTexture,
                     tile: tile, location: cityPos, offset: flagOffset)
@@ -263,22 +264,20 @@ public abstract class BaseGameView : IGameView
             {
                 if (unitImp.UnitDomain == unit.Domain)
                 {
-                    var impImage = ImageUtils.GetImpImage(activeInterface, unitImp.UnitImage,
-                        tile.Owner);
+                    var impImage = TextureCache.GetImage(unitImp.UnitImage, _gameScreen.Main.ActiveRuleSet.Paths, _gameScreen.PlayerColours, tile.Owner);
                     elements.Add(new TextureElement(
                         texture: impImage, location: posVector with { Y = posVector.Y + Dimensions.TileHeight - impImage.Height.ZoomScale(gameScreen.Zoom) }, tile: tile, isTerrain: true));
                 }
                 else
                 {
-                    var impImage = ImageUtils.GetImpImage(activeInterface, unitImp.Image,
-                        tile.Owner);
+                    var impImage = TextureCache.GetImage(unitImp.Image, _gameScreen.Main.ActiveRuleSet.Paths, _gameScreen.PlayerColours, tile.Owner);
                     elements.Add(new TextureElement(
                         texture: impImage,
                         location: posVector with { Y = posVector.Y + Dimensions.TileHeight - impImage.Height.ZoomScale(gameScreen.Zoom) },
                         tile: tile, isTerrain: true));
 
                     
-                    ImageUtils.GetUnitTextures(unit, activeInterface, gameScreen.Game, elements,
+                    ImageUtils.GetUnitTextures(unit, activeInterface, gameScreen.Game, gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths,  elements,
                         posVector with
                         {
                             Y = posVector.Y + Dimensions.TileHeight -
@@ -288,7 +287,7 @@ public abstract class BaseGameView : IGameView
             }
             else
             {
-                ImageUtils.GetUnitTextures(unit, activeInterface, gameScreen.Game, elements,
+                ImageUtils.GetUnitTextures(unit, activeInterface, gameScreen.Game, gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths,elements,
                     posVector with
                     {
                         Y = posVector.Y + Dimensions.TileHeight -
@@ -296,8 +295,7 @@ public abstract class BaseGameView : IGameView
                     });
                 if (tileDetails.ForegroundElement != null)
                 {
-                    var impImage = ImageUtils.GetImpImage(activeInterface,
-                        tileDetails.ForegroundElement.Image, tile.Owner);
+                    var impImage = TextureCache.GetImage(tileDetails.ForegroundElement.Image,  gameScreen.Main.ActiveRuleSet.Paths,gameScreen.PlayerColours, tile.Owner);
                     elements.Add(new TextureElement(
                         texture: impImage,
                         location: posVector with{ Y = posVector.Y + Dimensions.TileHeight - impImage.Height.ZoomScale(gameScreen.Zoom)
@@ -307,8 +305,7 @@ public abstract class BaseGameView : IGameView
         }
         else if (tileDetails.ForegroundElement != null)
         {
-            var impImage = ImageUtils.GetImpImage(activeInterface,
-                tileDetails.ForegroundElement.Image, tile.Owner);
+            var impImage = TextureCache.GetImage(tileDetails.ForegroundElement.Image, gameScreen.Main.ActiveRuleSet.Paths,gameScreen.PlayerColours, tile.Owner);
             elements.Add(new TextureElement(
                 texture: impImage,
                 location: posVector with { Y = posVector.Y + Dimensions.TileHeight - impImage.Height.ZoomScale(gameScreen.Zoom) },

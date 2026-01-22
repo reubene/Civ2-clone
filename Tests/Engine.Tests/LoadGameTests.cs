@@ -6,6 +6,7 @@ using Model;
 using Model.Core;
 using Model.Core.Advances;
 using Model.Dialog;
+using Model.Graphics;
 using Model.Images;
 using Model.ImageSets;
 using Model.InterfaceActions;
@@ -90,8 +91,6 @@ internal class MockInterface : IUserInterface
 
     public UnitSet UnitImages => throw new NotImplementedException();
 
-    public PlayerColour[] PlayerColours => throw new NotImplementedException();
-
     public int ExpectedMaps { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public CommonMapImageSet MapImages => throw new NotImplementedException();
@@ -105,6 +104,11 @@ internal class MockInterface : IUserInterface
     public Dictionary<string, IImageSource[]> PicSources => throw new NotImplementedException();
 
     public IList<ResourceImage> ResourceImages => throw new NotImplementedException();
+
+    public IEnumerable<PlayerColourSource> GetPlayerColours()
+    {
+        throw new NotImplementedException();
+    }
 
     public IMain MainApp => new MockMainApp();
 

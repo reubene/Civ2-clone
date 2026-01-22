@@ -1,5 +1,3 @@
-using Raylib_CSharp.Transformations;
-
 namespace Model.Images;
 
 public class BitmapStorage : IImageSource
@@ -32,13 +30,13 @@ public class BitmapStorage : IImageSource
     {
         if (Path.HasExtension(file))
         {
-            Extension = new[] { Path.GetExtension(file).Remove(0,1) };
+            Extension = [Path.GetExtension(file).Remove(0,1)];
             Filename = Path.GetFileNameWithoutExtension(file);
         }
         else
         {
             Filename = file;
-            Extension = new[] { "gif", "bmp", "png" };
+            Extension = ["gif", "bmp", "png"];
         }
 
         Location = location;
@@ -46,7 +44,8 @@ public class BitmapStorage : IImageSource
         SearchFlagLoc = searchFlagLoc;
     }
 
-    public BitmapStorage(string file, int x, int y, int w, int h = -1, bool transparencyPixel = false, bool searchFlagLoc = false) : this(file, new Rectangle(x, y, w, h == -1 ? w : h), transparencyPixel, searchFlagLoc)
+    public BitmapStorage(string file, int x, int y, int w, int h = -1, bool transparencyPixel = false, bool searchFlagLoc = false) 
+        : this(file, new Rectangle(x, y, w, h == -1 ? w : h), transparencyPixel, searchFlagLoc)
     {
     }
 

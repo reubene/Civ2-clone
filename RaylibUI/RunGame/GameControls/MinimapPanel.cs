@@ -15,6 +15,8 @@ using Civ2engine.MapObjects;
 using ExtensionMethods;
 using Raylib_CSharp.Collision;
 using Raylib_CSharp.Interact;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls;
 
@@ -238,7 +240,7 @@ public class MinimapPanel : BaseControl
                     if (_offset[0] + 2 * col + (row % 2) < 0 || _offset[0] + 2 * col + (row % 2) >= (int)_drawArea.Width) continue;
 
                     var drawColor = tile.CityHere is not null
-                        ? _active.PlayerColours[tile.CityHere.Owner.Id].TextColour
+                        ? _gameScreen.PlayerColours[tile.CityHere.Owner.Id].TextColour
                         : tile.Type == TerrainType.Ocean
                             ? OceanColor
                             : LandColor;

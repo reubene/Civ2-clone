@@ -10,6 +10,8 @@ using Raylib_CSharp.Transformations;
 using Raylib_CSharp.Textures;
 using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Colors;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls;
 
@@ -127,12 +129,17 @@ public class StatusPanel : BaseControl
     public override void Draw(bool pulse)
     {
         Graphics.DrawRectangle((int)Location.X, (int)Location.Y, Width, Height, Color.Black);
-        Graphics.DrawTexture(_backgroundImage.Value,(int)Location.X, (int)Location.Y, Color.White);
+        Graphics.DrawTexture(_backgroundImage.Value, (int)Location.X, (int)Location.Y, Color.White);
 
         base.Draw(pulse);
 
         // AI turn civ indicator
         if (_game.GetPlayerCiv != _game.GetActiveCiv)
-            Graphics.DrawRectangleRec(new Rectangle(_unitPanelBounds.X + _unitPanelBounds.Width - 8, _unitPanelBounds.Y + _unitPanelBounds.Height - 6, 8, 6), _active.PlayerColours[_game.GetActiveCiv.Id].LightColour);
+        {
+            Graphics.DrawRectangleRec(
+                new Rectangle(_unitPanelBounds.X + _unitPanelBounds.Width - 8,
+                    _unitPanelBounds.Y + _unitPanelBounds.Height - 6, 8, 6),
+                _gameScreen.PlayerColours[_game.GetActiveCiv.Id].Colours[PlayerColour.LightColourIndex]);
+        }
     }
 }

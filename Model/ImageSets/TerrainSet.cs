@@ -34,7 +34,7 @@ namespace Model.ImageSets
         public IImageSource[,] Coast { get; set; }
         public IImageSource Pollution { get; set; }
         public IImageSource GrasslandShield { get; set; }
-        public Image[] DitherMask { get; set; }
+        public IImageSource[] DitherMask { get; set; }
         
         public Dictionary<int, ImprovementGraphic> ImprovementsMap { get; set; }
 

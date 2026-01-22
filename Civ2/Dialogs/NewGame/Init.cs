@@ -18,14 +18,14 @@ public class Init : BaseDialogHandler
         Dialog.Image = new(activeInterface.PicSources["backgroundImageSmall1"][0]);
         
         var config = Initialization.ConfigObject;
-        if (config.PlayerCiv.Id >= Initialization.ConfigObject.Civilizations.Count)
+        /*if (config.PlayerCiv.Id >= Initialization.ConfigObject.Civilizations.Count)
         {
             var correctColour = activeInterface.PlayerColours[config.PlayerCiv.Id];
             var correctIndex = Initialization.ConfigObject.Civilizations.Count - 1;
             activeInterface.PlayerColours[config.PlayerCiv.Id] = activeInterface.PlayerColours[correctIndex];
             activeInterface.PlayerColours[correctIndex] = correctColour;
             config.PlayerCiv.Id = correctIndex;
-        }
+        }*/
         var maps = config.MapTask.Result;
         Initialization.GameInstance = NewGameInitialisation.StartNewGame(config, maps, config.Civilizations.OrderBy(c=>c.Id).ToList(), activeInterface.MainApp.ActiveRuleSet.Paths);
         

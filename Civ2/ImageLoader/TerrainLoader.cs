@@ -4,12 +4,13 @@ using Civ2engine.Terrains;
 using Model;
 using Model.Images;
 using Model.ImageSets;
-using Raylib_CSharp.Colors;
 using Raylib_CSharp.Images;
 using Raylib_CSharp.Transformations;
 using RaylibUI;
 using RaylibUtils;
 using System.Numerics;
+using Model.Graphics;
+using Rectangle = Model.Rectangle;
 
 namespace Civ2.ImageLoader
 {
@@ -30,60 +31,52 @@ namespace Civ2.ImageLoader
             var terrain = new TerrainSet(64, 32);
 
             // Get dither tile before making it transparent
-            var ditherTile = Images.ExtractBitmap(MapIndexChange((BitmapStorage)active.PicSources["dither"][0], index, active));
+            var ditherTile = new ComputedImage(MapIndexChange(active.PicSources["dither"][0], index))
+                .LoadColors(0)
+                .ReplaceColor(Color.Black, Color.White)
+                .ReplaceColor(new Color(255, 0, 255, 0), Color.Black)
+                .ReplaceColor(0, Color.Black);
 
-            Color gray;
-            unsafe
-            {
-                // Get the gray colour (it's not always the same in MGE/TOT, unlike magenta)
-                var imageColours = ditherTile.LoadColors();
-                gray = imageColours[0];
-                Image.UnloadColors(imageColours);
-            }
-            ditherTile.ReplaceColor(Color.Black, Color.White);
-            ditherTile.ReplaceColor(new Color(255, 0, 255, 0), Color.Black);
-            ditherTile.ReplaceColor(gray, Color.Black);
+            terrain.BaseTiles = active.PicSources["base1"].Select(t => MapIndexChange((BitmapStorage)t, index)).ToArray();
 
-            terrain.BaseTiles = active.PicSources["base1"].Select(t => MapIndexChange((BitmapStorage)t, index, active)).ToArray();
+            terrain.Specials =
+            [
+                active.PicSources["special1"].Select(s => MapIndexChange((BitmapStorage) s, index)).ToArray(),
+                active.PicSources["special2"].Select(s => MapIndexChange((BitmapStorage)s, index)).ToArray()
+            ];
 
-            terrain.Specials = new[]
-            {
-                active.PicSources["special1"].Select(s => MapIndexChange((BitmapStorage) s, index, active)).ToArray(),
-                active.PicSources["special2"].Select(s => MapIndexChange((BitmapStorage)s, index, active)).ToArray(),
-            };
-
-            terrain.Blank = MapIndexChange((BitmapStorage)active.PicSources["blank"][0], index, active);
+            terrain.Blank = MapIndexChange((BitmapStorage)active.PicSources["blank"][0], index);
 
             // 4 small dither tiles (base mask must be B/W)
-            terrain.DitherMask = new[]
-            {
-                Image.FromImage(ditherTile, new Rectangle(32, 0, 32, 16)),
-                Image.FromImage(ditherTile, new Rectangle(32, 16, 32, 16)),
-                Image.FromImage(ditherTile, new Rectangle(0, 16, 32, 16)),
-                Image.FromImage(ditherTile, new Rectangle(0, 0, 32, 16)),
-            };
+            terrain.DitherMask =
+            [
+                new ComputedImage(ditherTile, new Rectangle(32, 0, 32, 16)),
+                new ComputedImage(ditherTile, new Rectangle(32, 16, 32, 16)),
+                new ComputedImage(ditherTile, new Rectangle(0, 16, 32, 16)),
+                new ComputedImage(ditherTile, new Rectangle(0, 0, 32, 16))
+            ];
 
-            terrain.DitherMaps = new[]
-            {
+            terrain.DitherMaps =
+            [
                 BuildDitherMaps(terrain.DitherMask[0], terrain.BaseTiles, 32, 0, terrain.Blank),
                 BuildDitherMaps(terrain.DitherMask[1], terrain.BaseTiles, 32, 16, terrain.Blank),
                 BuildDitherMaps(terrain.DitherMask[2], terrain.BaseTiles, 0, 16, terrain.Blank),
-                BuildDitherMaps(terrain.DitherMask[3], terrain.BaseTiles, 0, 0, terrain.Blank),
-            };
+                BuildDitherMaps(terrain.DitherMask[3], terrain.BaseTiles, 0, 0, terrain.Blank)
+            ];
 
-            terrain.River = active.PicSources["river"].Select(r => MapIndexChange((BitmapStorage)r, index, active)).ToArray();
-            terrain.Forest = active.PicSources["forest"].Select(r => MapIndexChange((BitmapStorage)r, index, active)).ToArray();
-            terrain.Mountains = active.PicSources["mountain"].Select(r => MapIndexChange((BitmapStorage)r, index, active)).ToArray();
-            terrain.Hills = active.PicSources["hill"].Select(r => MapIndexChange((BitmapStorage)r, index, active)).ToArray();
-            terrain.RiverMouth = active.PicSources["riverMouth"].Select(r => MapIndexChange((BitmapStorage)r, index, active)).ToArray();
+            terrain.River = active.PicSources["river"].Select(r => MapIndexChange((BitmapStorage)r, index)).ToArray();
+            terrain.Forest = active.PicSources["forest"].Select(r => MapIndexChange((BitmapStorage)r, index)).ToArray();
+            terrain.Mountains = active.PicSources["mountain"].Select(r => MapIndexChange((BitmapStorage)r, index)).ToArray();
+            terrain.Hills = active.PicSources["hill"].Select(r => MapIndexChange((BitmapStorage)r, index)).ToArray();
+            terrain.RiverMouth = active.PicSources["riverMouth"].Select(r => MapIndexChange((BitmapStorage)r, index)).ToArray();
 
             terrain.Coast = new IImageSource[8, 4];
             for (var i = 0; i < 8; i++)
             {
-                terrain.Coast[i, 0] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 0], index, active); // N
-                terrain.Coast[i, 1] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 1], index, active); // S
-                terrain.Coast[i, 2] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 2], index, active); // W
-                terrain.Coast[i, 3] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 3], index, active); // E
+                terrain.Coast[i, 0] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 0], index); // N
+                terrain.Coast[i, 1] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 1], index); // S
+                terrain.Coast[i, 2] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 2], index); // W
+                terrain.Coast[i, 3] = MapIndexChange((BitmapStorage)active.PicSources["coastline"][4 * i + 3], index); // E
             }
 
             // Road & railroad
@@ -98,45 +91,43 @@ namespace Civ2.ImageLoader
 
             for (var i = 0; i < 9; i++)
             {
-                roadGraphics.Levels[0, i] = MapIndexChange((BitmapStorage)active.PicSources["road"][i], index, active);
-                roadGraphics.Levels[1, i] = MapIndexChange((BitmapStorage)active.PicSources["railroad"][i], index, active);
+                roadGraphics.Levels[0, i] = MapIndexChange((BitmapStorage)active.PicSources["road"][i], index);
+                roadGraphics.Levels[1, i] = MapIndexChange((BitmapStorage)active.PicSources["railroad"][i], index);
             }
 
             terrain.ImprovementsMap.Add(ImprovementTypes.Irrigation, new ImprovementGraphic
             {
                 Levels = new[,]
                 {
-                    { MapIndexChange((BitmapStorage)active.PicSources["irrigation"][0], index, active) },
-                    { MapIndexChange((BitmapStorage)active.PicSources["farmland"][0], index, active) }
+                    { MapIndexChange((BitmapStorage)active.PicSources["irrigation"][0], index) },
+                    { MapIndexChange((BitmapStorage)active.PicSources["farmland"][0], index) }
                 }
             });
 
             terrain.ImprovementsMap[ImprovementTypes.Mining] = new ImprovementGraphic
-                { Levels = new[,] { { MapIndexChange((BitmapStorage)active.PicSources["mine"][0], index, active) } } };
+                { Levels = new[,] { { MapIndexChange((BitmapStorage)active.PicSources["mine"][0], index) } } };
 
             terrain.ImprovementsMap[ImprovementTypes.Pollution] = new ImprovementGraphic
-                { Levels = new[,] { { MapIndexChange((BitmapStorage)active.PicSources["pollution"][0], index, active) } } };
+                { Levels = new[,] { { MapIndexChange((BitmapStorage)active.PicSources["pollution"][0], index) } } };
 
             //Note airbase and fortress are now loaded directly by the cities loader
-            terrain.GrasslandShield = MapIndexChange((BitmapStorage)active.PicSources["shield"][0], index, active);
+            terrain.GrasslandShield = MapIndexChange((BitmapStorage)active.PicSources["shield"][0], index);
 
             return terrain;
         }
 
-        private static DitherMap BuildDitherMaps(Image mask, IImageSource[] baseTiles, int offsetX, int offsetY,
+        private static DitherMap BuildDitherMaps(IImageSource mask, IImageSource[] baseTiles, int offsetX, int offsetY,
             IImageSource terrainBlank)
         {
             var sampleRect = new Rectangle(offsetX, offsetY, 32, 16);
             var totalTiles = baseTiles.Length + 1;
-            var ditherMaps = new Image[totalTiles];
+            var ditherMaps = new IImageSource[totalTiles];
             for (var i = 0; i < baseTiles.Length; i++)
             {
-                ditherMaps[i] = Image.FromImage(Images.ExtractBitmap(baseTiles[i]), sampleRect);
-                ditherMaps[i].AlphaMask(mask);
+                ditherMaps[i] = new ComputedImage(baseTiles[i], sampleRect, mask);
             }
 
-            ditherMaps[^1] = Image.FromImage(Images.ExtractBitmap(terrainBlank), sampleRect);
-            ditherMaps[^1].AlphaMask(mask);
+            ditherMaps[^1] = new ComputedImage(terrainBlank, sampleRect, mask);
 
             return new DitherMap { X = offsetX, Y = offsetY, Images = ditherMaps };
         }
@@ -144,8 +135,13 @@ namespace Civ2.ImageLoader
         /// <summary>
         /// For TERRAIN3, 4, 5, etc.
         /// </summary>
-        private static IImageSource MapIndexChange(BitmapStorage storage, int mapIndex, IUserInterface active)
+        private static IImageSource MapIndexChange(IImageSource source, int mapIndex)
         {
+            if (source is not BitmapStorage storage)
+            {
+                throw new ArgumentException("Source is not a BitmapStorage");
+            }
+
             var file = storage.Filename;
 
             if (mapIndex != 0)
@@ -155,9 +151,7 @@ namespace Civ2.ImageLoader
                 file = $"{file.Remove(file.Length - 1, 1)}{newIndex}";
             }
 
-            var img = new BitmapStorage(file, storage.Location, storage.TransparencyPixel, storage.SearchFlagLoc);
-            Images.ExtractBitmap(img, active);
-            return img;
+            return new BitmapStorage(file, storage.Location, storage.TransparencyPixel, storage.SearchFlagLoc);
         }
     }
 }   

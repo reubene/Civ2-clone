@@ -2,17 +2,16 @@ using Civ2engine;
 using Civ2engine.Enums;
 using Civ2engine.MapObjects;
 using Civ2engine.UnitActions;
-using Civ2engine.Units;
 using Model;
 using Model.Constants;
 using Model.Core;
 using Model.Interface;
 using Model.Menu;
 using Raylib_CSharp.Interact;
-using RaylibUI.Controls;
+using RaylibUI.RunGame.GameModes.Orders;
 using RaylibUtils;
 
-namespace RaylibUI.RunGame.GameModes.Orders;
+namespace RaylibUI.RunGame.Commands.Orders;
 
 public class BuildCity : Order
 {
@@ -69,16 +68,23 @@ public class BuildCity : Order
             var sizeIncrement =
                 _screen.Main.ActiveInterface.GetCityIndexForStyle(cityStyleIndex, city, city.Size);
             var cityImage = _active.CityImages.Sets[cityStyleIndex][sizeIncrement];
-            var flagImage = _screen.Main.ActiveInterface.PlayerColours[city.OwnerId];
+            var flagImage = _screen.PlayerColours[city.OwnerId];
 
             if (activeTile.CityHere != null)
             {
-                return SetCommandState(activeTile.CityHere.Size < GameScreen.Game.Rules.Cosmic.ToExceedCitySizeAqueductNeeded ? CommandStatus.Normal : CommandStatus.Disabled, Labels.For(LabelIndex.JoinCity), errorPopupKeyword: "ONLY10", errorPopupImage: new(new[] { cityImage.Image, flagImage.Image }, 2, coords: new int[,] { { 0, 0 }, { (int)cityImage.FlagLoc.X, (int)cityImage.FlagLoc.Y - Images.GetImageHeight(flagImage.Image, _active) - 5 } }));
+                return SetCommandState(activeTile.CityHere.Size < GameScreen.Game.Rules.Cosmic.ToExceedCitySizeAqueductNeeded ? CommandStatus.Normal : CommandStatus.Disabled, Labels.For(LabelIndex.JoinCity), errorPopupKeyword: "ONLY10", errorPopupImage: new(new[] { cityImage.Image, flagImage.Image }, 2, coords: new int[,] { { 0, 0 }, { (int)cityImage.FlagLoc.X, (int)cityImage.FlagLoc.Y - Images.GetImageHeight(flagImage.Image) - 5 } }));
             }
-            else
-            {
-                return SetCommandState(errorPopupKeyword: "ADJACENTCITY", errorPopupImage: new(new[] { cityImage.Image, flagImage.Image }, 2, coords: new int[,] { { 0, 0 }, { (int)cityImage.FlagLoc.X, (int)cityImage.FlagLoc.Y - Images.GetImageHeight(flagImage.Image, _active) - 5 } }));
-            }
+
+            return SetCommandState(errorPopupKeyword: "ADJACENTCITY",
+                errorPopupImage: new(new[] { cityImage.Image, flagImage.Image }, 2,
+                    coords: new int[,]
+                    {
+                        { 0, 0 },
+                        {
+                            (int)cityImage.FlagLoc.X,
+                            (int)cityImage.FlagLoc.Y - Images.GetImageHeight(flagImage.Image) - 5
+                        }
+                    }));
         }
 
         return SetCommandState(CommandStatus.Normal);

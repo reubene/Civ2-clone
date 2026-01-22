@@ -24,18 +24,14 @@ public static class TextureCache
 
         return Textures[name];
     }
+    
 
-    public static Texture2D GetImage(IImageSource source)
-    {
-        return GetImage(source, null, -1);
-    }
-
-    public static Texture2D GetImage(IImageSource source, IUserInterface? activeInterface = null, int civ = -1)
+    public static Texture2D GetImage(IImageSource source, string[] searchPaths = null, IList<PlayerColour>? playerColours = null, int civ = -1)
     {
         var key = source.GetKey( civ);
         if (!Textures.ContainsKey(key))
         {
-            var img = Images.ExtractBitmapData(source, activeInterface, civ).Image;
+            var img = Images.ExtractBitmapData(source,playerColours, civ, searchPaths).Image;
             Textures[key] = Texture2D.LoadFromImage(img);
             Textures[key].SetFilter((TextureFilter)Settings.TextureFilter);
         }

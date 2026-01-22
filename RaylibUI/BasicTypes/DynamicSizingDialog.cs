@@ -4,6 +4,7 @@ using Raylib_CSharp.Transformations;
 using RaylibUI.BasicTypes.Controls;
 using RaylibUI.Controls;
 using Button = RaylibUI.Controls.Button;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 using Size = RaylibUI.BasicTypes.Size;
 
 namespace RaylibUI;

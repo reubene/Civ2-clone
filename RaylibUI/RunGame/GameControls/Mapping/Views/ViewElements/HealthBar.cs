@@ -2,6 +2,7 @@ using System.Numerics;
 using Civ2engine.MapObjects;
 using Model;
 using Model.ImageSets;
+using RaylibUtils;
 
 namespace RaylibUI.RunGame.GameControls.Mapping;
 
@@ -14,15 +15,15 @@ public class HealthBar : RectangleElement
         
         if (hpBarX <= shield.HPbarSizeForColours[0])
         {
-            Color = shield.HPbarColours[0];
+            Color = shield.HPbarColours[0].AsRl();
         }
         else if (hpBarX <= shield.HPbarSizeForColours[1])
         {
-            Color = shield.HPbarColours[1];
+            Color = shield.HPbarColours[1].AsRl();
         }
         else
         {
-            Color = shield.HPbarColours[2];
+            Color = shield.HPbarColours[2].AsRl();
         }
         
         Size = new Vector2(hpBarX, shield.HPbarSize.Y);

@@ -9,6 +9,8 @@ using Raylib_CSharp.Textures;
 using RaylibUI.BasicTypes.Controls;
 using Raylib_CSharp.Transformations;
 using Model.CityWindowModel;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls.CityControls;
 
@@ -32,7 +34,7 @@ public class FoodStorageBox : BaseControl
         _cityWindow = cityWindow;
         _city = _cityWindow.City;
         _active = cityWindow.MainWindow.ActiveInterface;
-        _panelBounds = _cityWindow.CityWindowProps.FoodStorage;
+        _panelBounds = _cityWindow.CityWindowProps.FoodStorage.AsRl();
         _pen1 = new Color(75, 155, 35, 255);
         _pen2 = new Color(0, 51, 0, 255);
         _foodIcon = TextureCache.GetImage(_active.ResourceImages

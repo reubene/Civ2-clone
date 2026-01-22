@@ -13,6 +13,7 @@ using Raylib_CSharp.Windowing;
 using RaylibUI.BasicTypes.Controls;
 using RaylibUI.Controls;
 using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls.CityControls;
 
@@ -53,7 +54,7 @@ public class CityWindow : BaseDialog
 
         _infoButton = new CityButton(this, Labels.For(LabelIndex.Info), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _cityWindowProps.Buttons["Info"]
+            AbsolutePosition = _cityWindowProps.Buttons["Info"].AsRl()
         };
         _infoButton.Click += (_, _) => infoArea.SetActiveMode(CityDisplayMode.Info);
         Controls.Add(_infoButton);
@@ -61,7 +62,7 @@ public class CityWindow : BaseDialog
         // Map button
         _mapButton = new CityButton(this, Labels.For(LabelIndex.Map), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _cityWindowProps.Buttons["Map"]
+            AbsolutePosition = _cityWindowProps.Buttons["Map"].AsRl()
         };
         _mapButton.Click += (_, _) => infoArea.SetActiveMode(CityDisplayMode.SupportMap);
         Controls.Add(_mapButton);
@@ -69,14 +70,14 @@ public class CityWindow : BaseDialog
         // Rename button
         _renameButton = new CityButton(this, Labels.For(LabelIndex.Rename), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _cityWindowProps.Buttons["Rename"]
+            AbsolutePosition = _cityWindowProps.Buttons["Rename"].AsRl()
         };
         Controls.Add(_renameButton);
 
         // Happy button
         _happyButton = new CityButton(this, Labels.For(LabelIndex.Happy), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _cityWindowProps.Buttons["Happy"]
+            AbsolutePosition = _cityWindowProps.Buttons["Happy"].AsRl()
         };
         _happyButton.Click += (_, _) => infoArea.SetActiveMode(CityDisplayMode.Happiness);
         Controls.Add(_happyButton);
@@ -84,14 +85,14 @@ public class CityWindow : BaseDialog
         // View button
         _viewButton = new CityButton(this, Labels.For(LabelIndex.View), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _cityWindowProps.Buttons["View"]
+            AbsolutePosition = _cityWindowProps.Buttons["View"].AsRl()
         };
         Controls.Add(_viewButton);
 
         // Exit button
         _exitButton = new CityButton(this, Labels.For(LabelIndex.Close), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _cityWindowProps.Buttons["Exit"]
+            AbsolutePosition = _cityWindowProps.Buttons["Exit"].AsRl()
         };
         _exitButton.Click += CloseButtonOnClick;
         Controls.Add(_exitButton);
@@ -100,7 +101,7 @@ public class CityWindow : BaseDialog
         Controls.Add(new CityLabel(this, Labels.For(LabelIndex.CityResources), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize,
             new Color(223, 187, 63, 255), new Color(67, 67, 67, 255))
         {
-            AbsolutePosition = _cityWindowProps.Resources.TitlePosition
+            AbsolutePosition = _cityWindowProps.Resources.TitlePosition.AsRl()
         });
         foreach (var resource in _cityWindowProps.Resources.Resources)
         {
@@ -111,8 +112,8 @@ public class CityWindow : BaseDialog
         Controls.Add(new ProductionBox(this));
         Controls.Add(new UnitSupportBox(this));
 
-        var imageW = Images.GetImageWidth(_active.PicSources["zoomIn"][0], _active);
-        var imageH = Images.GetImageHeight(_active.PicSources["zoomIn"][0], _active);
+        var imageW = Images.GetImageWidth(_active.PicSources["zoomIn"][0]);
+        var imageH = Images.GetImageHeight(_active.PicSources["zoomIn"][0]);
         _exitIcon = new CityButton(this, String.Empty, backgroundImage: _active.PicSources["close"][0])
         {
             AbsolutePositionNoPadding = new Rectangle(11, 7, imageW, imageH)
@@ -169,7 +170,7 @@ public class CityWindow : BaseDialog
         LayoutPadding = _active.GetPadding(_headerLabel?.TextSize.Y ?? 0, false);
 
         BackgroundImage = ImageUtils.PaintDialogBase(_active, DialogWidth, DialogHeight, LayoutPadding,
-            Images.ExtractBitmap(_cityWindowProps.Image, _active));
+            Images.ExtractBitmap(_cityWindowProps.Image, searchPaths: CurrentGameScreen.Main.ActiveRuleSet?.Paths));
         
         SetLocation(width, DialogWidth, height, DialogHeight);
         _headerLabel.Bounds = new Rectangle(Location.X + 70, Location.Y, DialogWidth - 2 * 70, LayoutPadding.Top);

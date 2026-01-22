@@ -16,6 +16,8 @@ using Raylib_CSharp.Fonts;
 using Raylib_CSharp.Interact;
 using RaylibUI.Controls;
 using Raylib_CSharp.Collision;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls.Mapping;
 

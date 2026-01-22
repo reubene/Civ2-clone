@@ -33,7 +33,7 @@ internal class MoveAnimation : BaseGameView
         var prevTileUnit = map.TileC2(activeUnit.PrevXy[0], activeUnit.PrevXy[1]).UnitsHere.FirstOrDefault();
         if (prevTileUnit != null)
         {
-            ImageUtils.GetUnitTextures(prevTileUnit, activeInterface, gameScreen.Game, viewElementsPrevTileUnits,
+            ImageUtils.GetUnitTextures(prevTileUnit, activeInterface, gameScreen.Game, gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths, viewElementsPrevTileUnits,
                 ActivePos with { Y = ActivePos.Y - activeInterface.UnitImages.UnitRectangle.Height.ZoomScale(gameScreen.Zoom) + Dimensions.TileHeight });
         }
 
@@ -42,13 +42,13 @@ internal class MoveAnimation : BaseGameView
         var nextTileUnit = activeUnit.CurrentLocation.UnitsHere.Where(u => u != activeUnit && !activeUnit.CarriedUnits.Contains(u)).FirstOrDefault();
         if (nextTileUnit != null)
         {
-            ImageUtils.GetUnitTextures(nextTileUnit, activeInterface, gameScreen.Game, viewElementsNextTileUnits,
+            ImageUtils.GetUnitTextures(nextTileUnit, activeInterface, gameScreen.Game, gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths,viewElementsNextTileUnits,
                 new Vector2(unitDrawOffset[0] * (4 * (gameScreen.Zoom + 8)), unitDrawOffset[1] * (2 * (gameScreen.Zoom + 8))) + ActivePos with { Y = ActivePos.Y - activeInterface.UnitImages.UnitRectangle.Height.ZoomScale(gameScreen.Zoom) + Dimensions.TileHeight });
         }
 
         // Moving unit view elements
         var viewElementsActiveUnit = new List<IViewElement>();
-        ImageUtils.GetUnitTextures(activeUnit, activeInterface, gameScreen.Game, viewElementsActiveUnit,
+        ImageUtils.GetUnitTextures(activeUnit, activeInterface, gameScreen.Game, gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths,viewElementsActiveUnit,
             ActivePos with { Y = ActivePos.Y - activeInterface.UnitImages.UnitRectangle.Height.ZoomScale(gameScreen.Zoom) + Dimensions.TileHeight }, true);
 
         SetAnimation(viewElementsPrevTileUnits.Concat(viewElementsNextTileUnits).Concat(viewElementsActiveUnit).ToList());

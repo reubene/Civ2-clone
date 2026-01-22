@@ -16,6 +16,7 @@ using Model.Interface;
 using RaylibUI.RunGame.GameControls.Mapping;
 using RaylibUI.RunGame.GameControls.Mapping.Views.ViewElements;
 using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI;
 
@@ -297,35 +298,35 @@ public static class ImageUtils
     public static Texture2D OuterWallpaperTexture { get; private set; }
     public static Texture2D OuterTitleTopWallpaperTexture { get; private set; }
 
-    public static void SetLook(IUserInterface active)
+    public static void SetLook(InterfaceStyle look, string[] searchPaths)
     {
         Wallpaper = new Wallpaper();
-        _look = active.Look;
+        _look = look;
         if (_look.Outer is null)  // TOT
         {
-            Wallpaper.OuterTitleTop = _look.OuterTitleTop.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.OuterThinTop = _look.OuterThinTop.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.OuterBottom = _look.OuterBottom.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.OuterMiddle = _look.OuterMiddle.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.OuterLeft = _look.OuterLeft.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.OuterRight = _look.OuterRight.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.OuterTitleTopLeft = Images.ExtractBitmap(_look.OuterTitleTopLeft, active);
-            Wallpaper.OuterTitleTopRight = Images.ExtractBitmap(_look.OuterTitleTopRight, active);
-            Wallpaper.OuterThinTopLeft = Images.ExtractBitmap(_look.OuterThinTopLeft, active);
-            Wallpaper.OuterThinTopRight = Images.ExtractBitmap(_look.OuterThinTopRight, active);
-            Wallpaper.OuterMiddleLeft = Images.ExtractBitmap(_look.OuterMiddleLeft, active);
-            Wallpaper.OuterMiddleRight = Images.ExtractBitmap(_look.OuterMiddleRight, active);
-            Wallpaper.OuterBottomLeft = Images.ExtractBitmap(_look.OuterBottomLeft, active);
-            Wallpaper.OuterBottomRight = Images.ExtractBitmap(_look.OuterBottomRight, active);
-            Wallpaper.Inner = _look.Inner.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.InnerAlt = Images.ExtractBitmap(_look.InnerAlt, active);
-            Wallpaper.Button = _look.Button.Select(img => Images.ExtractBitmap(img, active)).ToArray();
-            Wallpaper.ButtonClicked = _look.ButtonClicked.Select(img => Images.ExtractBitmap(img, active)).ToArray();
+            Wallpaper.OuterTitleTop = _look.OuterTitleTop.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.OuterThinTop = _look.OuterThinTop.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.OuterBottom = _look.OuterBottom.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.OuterMiddle = _look.OuterMiddle.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.OuterLeft = _look.OuterLeft.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.OuterRight = _look.OuterRight.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.OuterTitleTopLeft = Images.ExtractBitmap(_look.OuterTitleTopLeft, searchPaths);
+            Wallpaper.OuterTitleTopRight = Images.ExtractBitmap(_look.OuterTitleTopRight, searchPaths);
+            Wallpaper.OuterThinTopLeft = Images.ExtractBitmap(_look.OuterThinTopLeft, searchPaths);
+            Wallpaper.OuterThinTopRight = Images.ExtractBitmap(_look.OuterThinTopRight, searchPaths);
+            Wallpaper.OuterMiddleLeft = Images.ExtractBitmap(_look.OuterMiddleLeft, searchPaths);
+            Wallpaper.OuterMiddleRight = Images.ExtractBitmap(_look.OuterMiddleRight, searchPaths);
+            Wallpaper.OuterBottomLeft = Images.ExtractBitmap(_look.OuterBottomLeft, searchPaths);
+            Wallpaper.OuterBottomRight = Images.ExtractBitmap(_look.OuterBottomRight, searchPaths);
+            Wallpaper.Inner = _look.Inner.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.InnerAlt = Images.ExtractBitmap(_look.InnerAlt, searchPaths);
+            Wallpaper.Button = _look.Button.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
+            Wallpaper.ButtonClicked = _look.ButtonClicked.Select(img => Images.ExtractBitmap(img, searchPaths)).ToArray();
         }
         else    // MGE
         {
-            Wallpaper.Outer = Images.ExtractBitmap(_look.Outer, active);
-            Wallpaper.Inner = new[] { Images.ExtractBitmap(_look.Inner[0], active) };
+            Wallpaper.Outer = Images.ExtractBitmap(_look.Outer, searchPaths);
+            Wallpaper.Inner = new[] { Images.ExtractBitmap(_look.Inner[0], searchPaths) };
         }
 
     }
@@ -390,12 +391,12 @@ public static class ImageUtils
         return new[] { left, image, right };
     }
 
-    public static Vector2 GetUnitTextures(IUnit unit, IUserInterface active, IGame game,
-        List<IViewElement> viewElements, Vector2 loc,
+    public static Vector2 GetUnitTextures(IUnit unit, IUserInterface active, IGame game,PlayerColour[] playerColours, string[] searchPaths,
+        List<IViewElement> viewElements, Vector2 loc, 
         bool noStacking = false)
     {
         var unitTexture = TextureCache.GetImage(active.UnitImages.Units[(int)unit.Type].Image);
-        var shieldTexture = TextureCache.GetImage(active.UnitImages.Shields, active, unit.Owner.Id);
+        var shieldTexture = TextureCache.GetImage(active.UnitImages.Shields, searchPaths, playerColours, unit.Owner.Id);
 
         var shield = active.UnitShield((int)unit.Type);
 
@@ -416,12 +417,12 @@ public static class ImageUtils
                 var stackShadowOffset = shield.StackingOffset + shield.ShadowOffset;
                 viewElements.Add(new TextureElement(
                     location: loc,
-                    texture: TextureCache.GetImage(active.UnitImages.ShieldShadow, active, unit.Owner.Id),
+                    texture: TextureCache.GetImage(active.UnitImages.ShieldShadow, searchPaths, playerColours, unit.Owner.Id),
                     tile: tile, offset: shield.Offset + stackShadowOffset));
             }
             viewElements.Add(new TextureElement(
                 location: loc,
-                texture: TextureCache.GetImage(active.UnitImages.ShieldBack, active, unit.Owner.Id),
+                texture: TextureCache.GetImage(active.UnitImages.ShieldBack, searchPaths, playerColours, unit.Owner.Id),
                 tile: tile, offset: shield.Offset + shield.StackingOffset));
         }
 
@@ -429,7 +430,7 @@ public static class ImageUtils
         if (shield.DrawShadow)
         {
             viewElements.Add(new TextureElement(location: loc,
-                texture: TextureCache.GetImage(active.UnitImages.ShieldShadow, active, unit.Owner.Id),
+                texture: TextureCache.GetImage(active.UnitImages.ShieldShadow, searchPaths, playerColours, unit.Owner.Id),
                 tile: tile, offset: shield.Offset + shield.ShadowOffset));
         }
 
@@ -444,8 +445,10 @@ public static class ImageUtils
 
         // Orders text
         var shieldText = (int)unit.Order <= 11 ? game.Rules.Orders[(int)unit.Order - 1].Key : "-";
-        viewElements.Add(new TextElement(shieldText, loc, shield.OrderTextHeight,
-            tile, shield.Offset + shield.OrderOffset));
+        var textHeight = Images.GetImageData(shield.OrderTextHeight);
+        var orderOffset = Images.GetDataVector(shield.OrderOffset);
+        viewElements.Add(new TextElement(shieldText, loc, (int)textHeight,
+            tile, shield.Offset + orderOffset));
 
         if (!shield.ShieldInFrontOfUnit)
         {
@@ -505,11 +508,6 @@ public static class ImageUtils
         hpShield.DrawRectangle(0, 2, hpBarX, 3, hpColor);
         hpShield.DrawRectangle(hpBarX, 2, hpShield.Width - hpBarX, 3, Color.Black);
         return hpShield;
-    }
-
-    public static Texture2D GetImpImage(IUserInterface activeInterface, IImageSource imageSource, int owner)
-    {
-        return TextureCache.GetImage(imageSource, activeInterface, owner);
     }
 
     public static int ZoomScale(this int i, int zoom)

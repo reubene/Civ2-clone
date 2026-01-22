@@ -12,6 +12,7 @@ using Raylib_CSharp.Textures;
 using Raylib_CSharp.Transformations;
 using RaylibUI.RunGame.GameControls.Mapping;
 using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls.CityControls;
 
@@ -205,7 +206,7 @@ public class CityTileMap : BaseControl
 
     public override void OnResize()
     {
-        AbsolutePosition = _cityWindow.CityWindowProps.TileMap.ScaleAll(_cityWindow.Scale);
+        AbsolutePosition = _cityWindow.CityWindowProps.TileMap.AsRl().ScaleAll(_cityWindow.Scale);
         base.OnResize();
         Redraw();
     }
@@ -229,7 +230,7 @@ public class CityTileMap : BaseControl
 
         var elements = new List<IViewElement>();
         var cityData = new List<Element>();
-        var activeCiv = _cityWindow.CurrentGameScreen.Player.Civilization;
+        var activeCiv = gameScreen.Player.Civilization;
         foreach (var tile in city.Location.CityRadius())
         {
             // We use the active civ here not the city owner as we may be viewing other players cities
@@ -262,13 +263,13 @@ public class CityTileMap : BaseControl
                     cityData.Add(new Element
                     {
                         Image = Images.ExtractBitmap(cities.Sets[cityStyleIndex][sizeIncrement]
-                            .Image, gameScreen.Main.ActiveInterface),
+                            .Image, gameScreen.Main.ActiveRuleSet.Paths),
                         DestRec = dstRec
                     });
                 }
                 else if (tile.UnitsHere.Any(u => u.Owner != city.Owner))
                 {
-                    ImageUtils.GetUnitTextures(tile.GetTopUnit(), _active, _cityWindow.CurrentGameScreen.Game, elements,
+                    ImageUtils.GetUnitTextures(tile.GetTopUnit(), _active, gameScreen.Game,  gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths, elements,
                         new Vector2(locationX, locationY - (int)unitsSet.UnitRectangle.Height + dim.TileHeight), true);
                     // units.Add(new Element()
                     // {
@@ -280,7 +281,7 @@ public class CityTileMap : BaseControl
 
                 if (tile.WorkedBy != null && tile.WorkedBy != city)
                 {
-                    image.Draw(Images.ExtractBitmap(gameScreen.Main.ActiveInterface.MapImages.ViewPiece, _active),
+                    image.Draw(Images.ExtractBitmap(gameScreen.Main.ActiveInterface.MapImages.ViewPiece, gameScreen.Main.ActiveRuleSet.Paths),
                         MapImage.TileRec, dstRec, Color.Red);
                 }
             }
@@ -289,7 +290,7 @@ public class CityTileMap : BaseControl
         //Cities must be drawn after terrain since they sometimes overdraw onto later tiles
         foreach (var cityDetails in cityData)
         {
-            image.Draw(cityDetails.Image, cities.CityRectangle,
+            image.Draw(cityDetails.Image, cities.CityRectangle.AsRl(),
                 cityDetails.DestRec,
                 Color.White);
         }
@@ -297,7 +298,7 @@ public class CityTileMap : BaseControl
 
         var resources =
             gameScreen.Main.ActiveInterface.ResourceImages.ToDictionary(k => k.Name,
-                v => Images.ExtractBitmap(v.SmallImage, gameScreen.Main.ActiveInterface));
+                v => Images.ExtractBitmap(v.SmallImage, gameScreen.Main.ActiveRuleSet.Paths));
 
         var lowOrganisation = _organizationLevel == 0;
         var totalDrawWidth = dim.TileWidth - 20;

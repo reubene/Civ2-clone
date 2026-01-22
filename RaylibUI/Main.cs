@@ -9,6 +9,7 @@ using Raylib_CSharp.Interact;
 using Raylib_CSharp.Audio;
 using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Colors;
+using RaylibUtils;
 
 namespace RaylibUI
 {
@@ -136,7 +137,7 @@ namespace RaylibUI
                 _activeInterface.Initialize();
                 TextureCache.Clear();
                 Labels.UpdateLabels(ActiveRuleSet);
-                ImageUtils.SetLook(_activeInterface);
+                ImageUtils.SetLook(_activeInterface.Look, ActiveRuleSet.Paths);
                 Soundman?.Dispose();
                 Soundman = new Sound(_activeInterface.Title);
                 _activeScreen?.InterfaceChanged(Soundman);
@@ -144,6 +145,7 @@ namespace RaylibUI
         }
 
         public IList<IUserInterface> Interfaces { get; set; }
+        public IList<PlayerColour> PlayerColours { get; set; }
 
         void ShutdownApp()
         {
@@ -157,7 +159,7 @@ namespace RaylibUI
         {
             ActiveRuleSet = AllRuleSets.First(r => r.InterfaceIndex == _activeInterface.InterfaceIndex);
             TextureCache.Clear();
-            ImageUtils.SetLook(_activeInterface);
+            ImageUtils.SetLook(_activeInterface.Look, ActiveRuleSet.Paths);
             _activeScreen = new MainMenu(this,() => _shouldClose= true, StartGame, Soundman);
         }
 

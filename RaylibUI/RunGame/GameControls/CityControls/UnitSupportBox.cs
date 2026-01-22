@@ -1,5 +1,6 @@
 using System.Numerics;
 using Model;
+using RaylibUtils;
 
 namespace RaylibUI.RunGame.GameControls.CityControls;
 
@@ -18,7 +19,7 @@ public class UnitSupportBox : BaseControl
 
     public override void OnResize()
     {
-        AbsolutePosition = _cityWindow.CityWindowProps.UnitSupport.Position.ScaleAll(_cityWindow.Scale);
+        AbsolutePosition = _cityWindow.CityWindowProps.UnitSupport.Position.AsRl().ScaleAll(_cityWindow.Scale);
         base.OnResize();
 
         Recalculate();
@@ -29,7 +30,8 @@ public class UnitSupportBox : BaseControl
         var units = _cityWindow.City.SupportedUnits;
         if(units.Count > 0)
         {
-            var activeInterface = _cityWindow.CurrentGameScreen.Main.ActiveInterface;
+            var gameScreen = _cityWindow.CurrentGameScreen;
+            var activeInterface = gameScreen.Main.ActiveInterface;
             var unitRec = activeInterface.UnitImages.UnitRectangle; 
             var requireHeight = (Height -4) / (float)_numberOfRows;
             var scale = requireHeight / unitRec.Height;
@@ -41,7 +43,7 @@ public class UnitSupportBox : BaseControl
             var children = new List<IControl>();
             for (int i = 0; i < units.Count && row < _numberOfRows; i++)
             {
-                children.Add(new UnitDisplay(_cityWindow, units[i], _cityWindow.CurrentGameScreen.Game, location,activeInterface, scale ));
+                children.Add(new UnitDisplay(_cityWindow, units[i], gameScreen.Game, location,activeInterface,  gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths, scale: scale ));
                 location = location with { X = location.X + requiredWidth };
                 if (location.X + requiredWidth > rowLimit)
                 {

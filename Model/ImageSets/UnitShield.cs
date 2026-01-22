@@ -1,5 +1,7 @@
-﻿using Raylib_CSharp.Colors;
+﻿
 using System.Numerics;
+using Model.Graphics;
+using Model.Images;
 
 namespace Model.ImageSets;
 
@@ -39,9 +41,9 @@ public class UnitShield
     /// <summary>
     /// Drawing offset of order key in unit rectangle
     /// </summary>
-    public Vector2 OrderOffset { get; set; }
+    public ImageDataVector OrderOffset { get; set; }
 
-    public int OrderTextHeight { get; set; }
+    public HeightSource OrderTextHeight { get; init; }
 
     public bool ShieldInFrontOfUnit { get; set; }
 }

@@ -3,14 +3,12 @@ using Civ2engine.IO;
 using Model.Images;
 using Model.ImageSets;
 using Model.InterfaceActions;
-using Model.Interface;
-using RaylibUI;
-using Raylib_CSharp.Images;
-using Raylib_CSharp.Textures;
-using System.Numerics;
 using Model.Core;
 using Model.Core.Advances;
 using Model.Dialog;
+using Model.Graphics;
+using Raylib_CSharp.Images;
+using Raylib_CSharp.Textures;
 
 namespace Model;
 
@@ -25,7 +23,6 @@ public interface IUserInterface
     
     IImageSource? ScenTitleImage { get; set; }
     int GetCityIndexForStyle(int cityStyleIndex, City city, int citySize);
-    void LoadPlayerColours();
 
     Padding GetPadding(float headerLabelHeight, bool footer);
 
@@ -34,8 +31,6 @@ public interface IUserInterface
     CityImageSet CityImages { get; }
     
     UnitSet UnitImages { get; }
-
-    PlayerColour[] PlayerColours { get; }
     
     int ExpectedMaps { get; set; }
 
@@ -58,6 +53,7 @@ public interface IUserInterface
 
     IList<Ruleset> FindRuleSets(string[] searchPaths);
     
+    public IEnumerable<PlayerColourSource> GetPlayerColours();
     IMain MainApp { get; }
     int InterfaceIndex { get; set; }
     IInterfaceAction HandleLoadGame(IGame game, Rules rules, Ruleset ruleset, Dictionary<string, string?> viewData);

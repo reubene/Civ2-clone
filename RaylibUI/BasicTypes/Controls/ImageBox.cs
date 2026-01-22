@@ -30,12 +30,12 @@ public class ImageBox : BaseControl
 
     public override int GetPreferredWidth()
     {
-        return Image.Select(img => Images.GetImageWidth(img, _active, Scale)).Max();
+        return Image.Select(img => Images.GetImageWidth(img, Scale)).Max();
     }
 
     public override int GetPreferredHeight()
     {
-        return Image.Select(img => Images.GetImageHeight(img, _active, Scale)).Max();
+        return Image.Select(img => Images.GetImageHeight(img, Scale)).Max();
     }
 
     public override void Draw(bool pulse)

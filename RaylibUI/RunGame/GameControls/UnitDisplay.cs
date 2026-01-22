@@ -4,7 +4,10 @@ using Model;
 using Model.Core;
 using Model.Core.Units;
 using Raylib_CSharp.Transformations;
+using RaylibUI.RunGame.GameControls.CityControls;
 using RaylibUI.RunGame.GameControls.Mapping;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls;
 
@@ -15,13 +18,13 @@ public class UnitDisplay : BaseControl
     private float _scale;
 
     public UnitDisplay(IControlLayout controller, Unit unit, IGame game, Vector2 location,
-        IUserInterface activeInterface,
+        IUserInterface activeInterface, PlayerColour[] playerColours, string[] searchPaths,
         float scale = 1f) : base(controller)
     {
         _previousLocation = location;
         _scale = scale;
-        _unitTextures = new List<IViewElement>();
-        var size = ImageUtils.GetUnitTextures(unit, activeInterface, game, _unitTextures, location, true);
+        _unitTextures = [];
+        var size = ImageUtils.GetUnitTextures(unit, activeInterface, game,playerColours, searchPaths, _unitTextures, location, true);
         Bounds = new Rectangle(location.X, location.Y, size.X * scale, size.Y * scale);
     }
 

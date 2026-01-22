@@ -9,7 +9,10 @@ using Civ2engine.Terrains;
 using Model;
 using Model.Images;
 using System.Numerics;
+using Model.Images.ImageTransformSteps;
 using Raylib_CSharp.Colors;
+using Raylib_CSharp.Rendering;
+using Rectangle = Model.Rectangle;
 
 namespace RaylibUtils
 {
@@ -77,27 +80,42 @@ namespace RaylibUtils
             return ExtractBitmapData(imageSource, null, searchPaths: searchPaths);
         }
 
-        public static Image ExtractBitmap(IImageSource imageSource, IUserInterface active)
+        public static Image ExtractBitmap(IImageSource imageSource, string[]? searchPaths = null)
         {
-            return ExtractBitmapData(imageSource, active).Image;
+            return ExtractBitmapData(imageSource, searchPaths: searchPaths).Image;
+        }
+        
+        public static Color ExtractBitmapColor(IImageSource imageSource, int col, int row = 0, int? argDiv = null,
+            int? forceAlpha = null)
+        {
+            var bitmap = ExtractBitmapData(imageSource, playerColours: null).Image;
+            var colours = bitmap.LoadColors();
+            var result = colours[col + row* bitmap.Width];
+            if (argDiv != null)
+            {
+                result.R = (byte)(result.R / argDiv);
+                result.G = (byte)(result.G / argDiv);
+                result.B = (byte)(result.B / argDiv);
+            }
+            if (forceAlpha != null)
+            {
+                result.A = (byte)forceAlpha;
+            }
+            Image.UnloadColors(colours);
+            return  result;
         }
 
-        public static Image ExtractBitmap(IImageSource imageSource)
-        {
-            return ExtractBitmapData(imageSource, active: null).Image;
-        }
-
-        public static int GetImageWidth(IImageSource? imageSource, IUserInterface active, float scale = 1f) 
+        public static int GetImageWidth(IImageSource? imageSource, float scale = 1f) 
         { 
-            return imageSource == null ? 0 : (int)(ExtractBitmap(imageSource, active).Width * scale);
+            return imageSource == null ? 0 : (int)(ExtractBitmap(imageSource).Width * scale);
         }
 
-        public static int GetImageHeight(IImageSource? imageSource, IUserInterface active, float scale = 1f)
+        public static int GetImageHeight(IImageSource? imageSource, float scale = 1f)
         {
-            return imageSource == null ? 0 : (int)(ExtractBitmap(imageSource, active).Height * scale);
+            return imageSource == null ? 0 : (int)(ExtractBitmap(imageSource).Height * scale);
         }
 
-        public static ImageProps ExtractBitmapData(IImageSource imageSource, IUserInterface? active, int owner = -1, string[]? searchPaths = null)
+        public static ImageProps ExtractBitmapData(IImageSource imageSource, IList<PlayerColour>? playerColours, int owner = -1, string[]? searchPaths = null)
         {
             var imageProps = new ImageProps();
             int flag1X = 0, flag1Y = 0, flag2X = 0, flag2Y = 0;
@@ -111,6 +129,9 @@ namespace RaylibUtils
             
             switch (imageSource)
             {
+                case Blank blak:
+                    return new ImageProps
+                        { Image = new Image { Width = blak.Width, Height = blak.Height }, Flag1 = Vector2.Zero, Flag2 = Vector2.Zero };
                 case BinaryStorage binarySource:
                     {
                         var sourceKey = $"Binary-{binarySource.Filename}-{binarySource.DataStart}-Source";
@@ -128,7 +149,7 @@ namespace RaylibUtils
                         {
                             rect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
                         }
-                        var image = Image.FromImage(sourceImage, rect);
+                        var image = Image.FromImage(sourceImage, rect.AsRl());
                         _imageCache[binarySource.Key] = image;
                         break;
                     }
@@ -137,8 +158,7 @@ namespace RaylibUtils
                         var sourceKey = $"{bitmapStorage.Filename}-Source";
                         if (!_imageCache.ContainsKey(sourceKey))
                         {
-                            string[] _paths = active != null ?
-                                active.MainApp.ActiveRuleSet.Paths : searchPaths ?? Settings.SearchPaths;
+                            string[] _paths = searchPaths ?? Settings.SearchPaths;
                             var path = Utils.GetFilePath(bitmapStorage.Filename, _paths, bitmapStorage.Extension);
                             path ??= Utils.GetFilePath(bitmapStorage.Filename, Settings.SearchPaths, bitmapStorage.Extension);
                             var source_img_bpp = Images.LoadImageFromFile(path);
@@ -152,7 +172,7 @@ namespace RaylibUtils
                         {
                             rect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
                         }
-                        var image = Image.FromImage(sourceImage, rect);
+                        var image = Image.FromImage(sourceImage, rect.AsRl());
 
                         // Upper-left pixel transparency (not for 8bpp gif/bmp)
                         if (_sourceBpp[sourceKey] > 8 && bitmapStorage.TransparencyPixel)
@@ -197,21 +217,58 @@ namespace RaylibUtils
                 }
                 case MemoryStorage memoryStorage:
                 {
-                    if (owner != -1 && memoryStorage.ReplacementColour != null && active != null)
-                    {
-                        var image = memoryStorage.Image.Copy();
-                        image.ReplaceColor(memoryStorage.ReplacementColour.Value,
-                            memoryStorage.Dark
-                                ? active.PlayerColours[owner].DarkColour
-                                : active.PlayerColours[owner].LightColour);
-                        _imageCache[key] = image;
-                    }
-                    else
-                    {
                         _imageCache[key] = memoryStorage.Image;
-                    }
                     break;
                 }
+                case ComputedImage computedImage:
+                    List<Color> colourList = [];
+                    var baseImage = ExtractBitmapData(computedImage.BaseImage, playerColours, owner, searchPaths).Image;
+                    foreach (var transformation in computedImage.Steps)
+                    {
+                        switch (transformation)
+                        {
+                            case SubsectionStep subsectionStep:
+                                baseImage = Image.FromImage(baseImage, subsectionStep.Rectangle.AsRl());
+                                break;
+                            case MaskStep maskStep:
+                                var mask = ExtractBitmapData(maskStep.Mask, playerColours, owner, searchPaths).Image;
+                                baseImage.AlphaMask(mask);
+                                break;
+                            case LoadColourStep loadColourStep:
+                                var imageColours = baseImage.LoadColors();
+                                colourList.Add(imageColours[loadColourStep.Index]);
+                                Image.UnloadColors(imageColours);
+                                break;
+                            case ReplaceColour replaceColourStep:
+                                var replaceColour = replaceColourStep.Index != -1
+                                    ? colourList[replaceColourStep.Index]
+                                    : replaceColourStep.Original.Value.AsRl();
+                                baseImage.ReplaceColor(replaceColour, replaceColourStep.Replacement.AsRl());
+                                break;
+                            case ReplacePlayerColourStep replacePlayerColourStep:
+                                if (playerColours != null && owner != -1 && owner < playerColours.Count)
+                                {
+                                    var playerColour = playerColours[owner];
+                                    baseImage = baseImage.Copy();
+                                    baseImage.ReplaceColor(replacePlayerColourStep.Replacement.AsRl(),
+                                        playerColour.Colours[replacePlayerColourStep.Index]);
+                                }
+
+                                break;
+                            case CopyStep:
+                                baseImage = baseImage.Copy();
+                                break;
+                            case DrawRectangleStep drawRectangleStep:
+                                var width = drawRectangleStep.Width == Model.Graphics.Constants.FullWidth
+                                    ? baseImage.Width
+                                    : drawRectangleStep.Width;
+                                baseImage.DrawRectangle(drawRectangleStep.X, drawRectangleStep.Y, width,
+                                    drawRectangleStep.Height, drawRectangleStep.Color.AsRl());
+                                break;
+                        }
+                    }
+                    _imageCache[key] = baseImage;
+                    break;
                 default:
                     throw new NotImplementedException("Other image sources not currently implemented");
             }
@@ -229,6 +286,34 @@ namespace RaylibUtils
             {
                 _imageCache.Remove(image.Key);
             }
+        }
+
+        public static decimal GetImageData(IImageDataSource source)
+        {
+            var value = source switch
+            {
+                HeightSource heightSource => ExtractBitmap(heightSource.BaseImage).Height,
+                WidthSource widthSource => ExtractBitmap(widthSource.BaseImage).Width,
+                FloatSource floatSource => (decimal)floatSource.F,
+                _ => 0
+            };
+            foreach (var operation in source.Operations)
+            {
+                switch (operation)
+                {
+                    case Sub sun:
+                        value -= sun.Num;
+                        break;
+                }
+            }
+            return value;
+        }
+
+        public static Vector2 GetDataVector(ImageDataVector imageDataVector)
+        {
+            var x = GetImageData(imageDataVector.X);
+            var y = GetImageData(imageDataVector.Y);
+            return new Vector2((float)x, (float)y);
         }
     }
 }

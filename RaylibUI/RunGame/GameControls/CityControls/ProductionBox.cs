@@ -12,6 +12,8 @@ using Raylib_CSharp.Transformations;
 using RaylibUI.BasicTypes.Controls;
 using RaylibUI.Controls;
 using System.Numerics;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls.CityControls;
 
@@ -54,11 +56,11 @@ public class ProductionBox : BaseControl
 
         _buyButton = new CityButton(cityWindow, Labels.For(LabelIndex.Buy), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _properties.BuyButtonBounds
+            AbsolutePosition = _properties.BuyButtonBounds.AsRl()
         };
         _changeButton = new CityButton(cityWindow, Labels.For(LabelIndex.Change), _active.Look.CityWindowFont, _active.Look.CityWindowFontSize)
         {
-            AbsolutePosition = _properties.ChangeButtonBounds
+            AbsolutePosition = _properties.ChangeButtonBounds.AsRl()
         };
         _changeButton.Click += (_, _) =>
         {
@@ -79,7 +81,7 @@ public class ProductionBox : BaseControl
 
     public override void OnResize()
     {
-        AbsolutePosition = _properties.Box.ScaleAll(_cityWindow.Scale);
+        AbsolutePosition = _properties.Box.AsRl().ScaleAll(_cityWindow.Scale);
         base.OnResize();
 
         _shieldWidth = _shieldIcon.Width * _cityWindow.Scale;

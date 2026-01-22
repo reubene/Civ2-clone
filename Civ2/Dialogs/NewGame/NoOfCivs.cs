@@ -15,7 +15,7 @@ public class NoOfCivs : SimpleSettingsDialog
 
     public override IInterfaceAction Show(Civ2Interface activeInterface)
     {
-        var possibleCivs = activeInterface.PlayerColours.Length - 1;
+        var possibleCivs = activeInterface.MaxCivs;
         if(Dialog.Dialog.Options == null || Dialog.Dialog.Options.Count +2 != possibleCivs)
         {
             var suffix = Dialog.Dialog.Options?[0].Split(" ", 2,

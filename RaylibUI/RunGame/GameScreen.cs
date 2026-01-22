@@ -22,6 +22,9 @@ using RaylibUI.RunGame.GameModes;
 using RaylibUI.RunGame.GameModes.Orders;
 using Raylib_CSharp.Interact;
 using JetBrains.Annotations;
+using Model.ImageSets;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame;
 
@@ -79,10 +82,12 @@ public class GameScreen : BaseScreen
     private Action<string,int,IList<bool>?,IDictionary<string,string>?>? _popupClicked;
 
     private int _zoom;
+    
+    public PlayerColour[] PlayerColours { get; init; }
 
     public event EventHandler<MapEventArgs>? OnMapEvent = null;
 
-    public GameScreen(Main main, IGame game, Sound soundman, IDictionary<string, string?>? viewData): base(main)
+    public GameScreen(Main main, IGame game, Sound soundman, IDictionary<string, string?>? viewData, IList<PlayerColour> playerColours): base(main)
     {
         TileCache = new TileTextureCache(this);
         Main = main;
@@ -104,6 +109,8 @@ public class GameScreen : BaseScreen
         VisibleCivId = _player.Civilization.Id;
         game.ConnectPlayer(_player);
 
+        // TODO: Adjust this master list to those actually in the game
+        PlayerColours = playerColours.ToArray();
         
         var commands = SetupCommands(game);
         var menuElements = main.ActiveInterface.ConfigureGameCommands(commands);

@@ -1,6 +1,8 @@
+using Model.Graphics;
 using Model.Images;
 using Raylib_CSharp.Fonts;
 using Raylib_CSharp.Colors;
+using Color = Model.Graphics.Color;
 
 namespace Model;
 

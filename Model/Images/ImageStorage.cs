@@ -5,5 +5,6 @@ public enum ImageStorage
     Binary,
     Bitmap,
     Memory,
-    Computed
+    Computed,
+    Blank
 }

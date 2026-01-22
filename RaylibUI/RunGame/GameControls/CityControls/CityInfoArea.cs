@@ -7,6 +7,8 @@ using Raylib_CSharp.Rendering;
 using Raylib_CSharp.Transformations;
 using RaylibUI.BasicTypes.Controls;
 using System.Numerics;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameControls.CityControls;
 
@@ -41,7 +43,7 @@ public class CityInfoArea : BaseControl
 
     public override void OnResize()
     {
-        AbsolutePosition = _props.InfoPanel.ScaleAll(_cityWindow.Scale);
+        AbsolutePosition = _props.InfoPanel.AsRl().ScaleAll(_cityWindow.Scale);
         base.OnResize();
 
         _label.Text = _mode switch
@@ -65,11 +67,12 @@ public class CityInfoArea : BaseControl
 
         if (_mode == CityDisplayMode.Info)
         {
+            var gameScreen = _cityWindow.CurrentGameScreen;
             float unitScale = ImageUtils.ZoomScale((int)(6 * _cityWindow.Scale - 8));    // zoom=-5/-2/+1
             int row = 0;
             foreach (var unit in _city.UnitsInCity.AsEnumerable().Reverse())
             {
-                var unitDisplay = new UnitDisplay(_cityWindow, unit, _game, activPos, _active, unitScale);
+                var unitDisplay = new UnitDisplay(_cityWindow, unit, _game, activPos, _active, gameScreen.PlayerColours, gameScreen.Main.ActiveRuleSet.Paths, scale: unitScale);
                 _fontSize = 13 + 16 * (_cityWindow.Scale - 1);
                 var unitLabel = new LabelControl(_cityWindow, ShortCityName(_city), true, font: _active.Look.CityWindowFont,
                     alignment: TextAlignment.Center, colorShadow: new Color(135, 135, 135, 255), shadowOffset: new Vector2(1, 1),

@@ -13,7 +13,7 @@ namespace RaylibUI.RunGame.GameControls.Mapping;
 
 public static class MapImage
 {
-    private static Color _replacementColour = new (255, 0, 0, 255);
+    private static readonly Model.Graphics.Color ReplacementColour = new (255, 0, 0, 255);
     
     private static readonly (int, int)[][] CoastMap = {
         new[]{ (0,4), (3,1) }, 
@@ -216,10 +216,12 @@ public static class MapImage
                         tileDetails.ForegroundElement = new UnitHidingImprovement
                         {
                             UnitDomain = (UnitGas)improvement.HideUnits,
-                            UnitImage = new MemoryStorage(Images.ExtractBitmap(graphics.UnitLevels[construct.Level, 0]), improvement.Name,
-                                _replacementColour),
-                            Image = new MemoryStorage(Images.ExtractBitmap(graphics.Levels[construct.Level, 0]), improvement.Name,
-                                _replacementColour)
+                            UnitImage = graphics.UnitLevels[construct.Level, 0]
+                                //.Copy(improvement.Name)
+                                .ReplaceWithPlayerColor(ReplacementColour, PlayerColour.LightColourIndex),
+                            Image = graphics.Levels[construct.Level, 0]
+                                // .Copy(improvement.Name) -- Not sure if this is needed ??
+                                .ReplaceWithPlayerColor(ReplacementColour, PlayerColour.LightColourIndex)
                         };
                     }
                     else if (improvement.Foreground)
@@ -243,7 +245,8 @@ public static class MapImage
             if (directNeighbour != null && !(directNeighbour.IsVisible(civilizationId) || map.MapRevealed)) // Don't dither edge of map (neighbour=null)
             {
                 var ditherMap = terrainSet.DitherMaps[index];
-                tilePic.Draw(ditherMap.Images[^1], new Rectangle(0, 0, 32, 16),
+                var ditherImage = Images.ExtractBitmap(ditherMap.Images[^1]);
+                tilePic.Draw(ditherImage, new Rectangle(0, 0, 32, 16),
                     new Rectangle(ditherMap.X, ditherMap.Y, 32, 16), Color.White);
             }
         }
@@ -260,7 +263,9 @@ public static class MapImage
         }
 
         if (neighbourType == tileType) return;
-        origImg.Draw(ditherMap.Images[(int)neighbourType], new Rectangle(0, 0, 32, 16),
+        
+        var ditherImg = Images.ExtractBitmap(ditherMap.Images[(int)neighbourType]);
+        origImg.Draw(ditherImg, new Rectangle(0, 0, 32, 16),
             new Rectangle(ditherMap.X, ditherMap.Y, 32, 16), Color.White);
     }
 }

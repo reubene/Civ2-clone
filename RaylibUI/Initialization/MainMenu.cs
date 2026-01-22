@@ -132,7 +132,7 @@ public class MainMenu : BaseScreen
         var titleImg = MainWindow.ActiveInterface.ScenTitleImage;
         if (titleImg != null)
         {
-            var titleTexture = TextureCache.GetImage(titleImg, MainWindow.ActiveInterface);
+            var titleTexture = TextureCache.GetImage(titleImg, MainWindow.ActiveRuleSet.Paths);
             Graphics.ClearBackground(_background.Background);
             Graphics.DrawTexture(titleTexture, (screenWidth - titleTexture.Width) / 2, (screenHeight - titleTexture.Height) / 2, Color.White);
         }
@@ -167,9 +167,9 @@ public class MainMenu : BaseScreen
         var backGroundImage = MainWindow.ActiveInterface.PicSources["backgroundImage"][0];
         if (backGroundImage != null)
         {
-            var img = Images.ExtractBitmap(backGroundImage, MainWindow.ActiveInterface);
+            var img = Images.ExtractBitmap(backGroundImage);
             var colour = img.GetColor(0, 0);
-            return new ScreenBackground(colour, TextureCache.GetImage(backGroundImage, MainWindow.ActiveInterface));
+            return new ScreenBackground(colour, TextureCache.GetImage(backGroundImage, MainWindow.ActiveRuleSet.Paths));
         }
 
         return null;

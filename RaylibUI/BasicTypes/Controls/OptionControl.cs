@@ -17,17 +17,17 @@ internal class OptionControl : LabelControl
     public override bool CanFocus => true;
 
     public OptionControl(IControlLayout controller, string text, int index, bool isChecked, IImageSource[] images) : base(
-        controller, text, eventTransparent: false, padding: new (0, Images.GetImageWidth(images[0], controller.MainWindow.ActiveInterface), 0, 0),
+        controller, text, eventTransparent: false, padding: new (0, Images.GetImageWidth(images[0]), 0, 0),
         font: controller.MainWindow.ActiveInterface.Look.LabelFont,
         fontSize: controller.MainWindow.ActiveInterface.Look.LabelFontSize,
-        colorFront: controller.MainWindow.ActiveInterface.Look.LabelColour,
-        colorShadow: controller.MainWindow.ActiveInterface.Look.LabelShadowColour, shadowOffset: new System.Numerics.Vector2(1, 1))
+        colorFront: controller.MainWindow.ActiveInterface.Look.LabelColour.AsRl(),
+        colorShadow: controller.MainWindow.ActiveInterface.Look.LabelShadowColour.AsRl(), shadowOffset: new System.Numerics.Vector2(1, 1))
     {
         Index = index;
         Checked = isChecked;
         _images = images;
-        _imageWidth = Images.GetImageWidth(images[0], controller.MainWindow.ActiveInterface);
-        _imageHeight = Images.GetImageHeight(images[0], controller.MainWindow.ActiveInterface);
+        _imageWidth = Images.GetImageWidth(images[0]);
+        _imageHeight = Images.GetImageHeight(images[0]);
     }
 
     public int Index { get; }

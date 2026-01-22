@@ -14,6 +14,8 @@ using RaylibUI.BasicTypes.Controls;
 using RaylibUI.Forms;
 using RaylibUI.RunGame.GameControls;
 using RaylibUI.RunGame.GameControls.Mapping.Views;
+using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.RunGame.GameModes;
 
@@ -28,7 +30,7 @@ public class ViewPiece : IGameMode
         _gameScreen = gameScreen;
         _look = gameScreen.MainWindow.ActiveInterface.Look;
 
-        _title = new LabelControl(gameScreen, Labels.For(LabelIndex.ViewingPieces), true, alignment: TextAlignment.Center, font: _look.StatusPanelLabelFont, fontSize: 18, spacing: 0, colorFront: _look.MovingUnitsViewingPiecesLabelColor, colorShadow: _look.MovingUnitsViewingPiecesLabelColorShadow, shadowOffset: new Vector2(1, 0));
+        _title = new LabelControl(gameScreen, Labels.For(LabelIndex.ViewingPieces), true, alignment: TextAlignment.Center, font: _look.StatusPanelLabelFont, fontSize: 18, spacing: 0, colorFront: _look.MovingUnitsViewingPiecesLabelColor.AsRl(), colorShadow: _look.MovingUnitsViewingPiecesLabelColorShadow.AsRl(), shadowOffset: new Vector2(1, 0));
 
         Actions = new Dictionary<KeyboardKey, Func<bool>>
             {
@@ -279,7 +281,7 @@ public class ViewPiece : IGameMode
             var nameLabelWidth = nameLabel.TextSize.X;
 
             var unitDisplay = new UnitDisplay(_gameScreen, unit, _gameScreen.Game, new Vector2(currentX, currentY),
-                _gameScreen.Main.ActiveInterface, ImageUtils.ZoomScale(unitZoom));
+                _gameScreen.Main.ActiveInterface, _gameScreen.PlayerColours, _gameScreen.Main.ActiveRuleSet.Paths, scale: ImageUtils.ZoomScale(unitZoom));
 
             var moveText = unitsOnTile.Count - i == 1 ? Labels.For(LabelIndex.Unit) : Labels.For(LabelIndex.Units);
             var unitsLeftLabel = new StatusLabel(_gameScreen, $"({unitsOnTile.Count - i} {Labels.For(LabelIndex.More)} {moveText})", fontSize: fontSize);

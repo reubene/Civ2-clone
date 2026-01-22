@@ -10,6 +10,7 @@ using RaylibUI.BasicTypes;
 using Model.Images;
 using JetBrains.Annotations;
 using RaylibUtils;
+using Rectangle = Raylib_CSharp.Transformations.Rectangle;
 
 namespace RaylibUI.Controls;
 
@@ -33,7 +34,7 @@ public class Button : BaseControl
         
         _font = _active == null ? font ?? Fonts.Tnr : font ?? _active.Look.ButtonFont;        
         _fontSize = fontSize ?? _active?.Look.ButtonFontSize ?? 20;
-        _textColour = _active?.Look.ButtonColour ?? Color.Black;
+        _textColour = _active?.Look.ButtonColour.AsRl() ?? Color.Black;
         _textSize = TextManager.MeasureTextEx(_font, text, _fontSize, 1f);
         Height = (int)(_textSize.Y + 10f);
         _backgroundImage = backgroundImage;
@@ -121,12 +122,12 @@ public class Button : BaseControl
     public override int GetPreferredHeight()
     {
         return _backgroundImage == null ? 35 : 
-            Images.GetImageHeight(_backgroundImage, _active, Scale);
+            Images.GetImageHeight(_backgroundImage, Scale);
     }
 
     public override int GetPreferredWidth()
     {
         return _backgroundImage == null ? Math.Max((int)_textSize.X + 10, 160) :
-            Math.Max((int)_textSize.X, Images.GetImageWidth(_backgroundImage, _active, Scale));
+            Math.Max((int)_textSize.X, Images.GetImageWidth(_backgroundImage, Scale));
     }
 }

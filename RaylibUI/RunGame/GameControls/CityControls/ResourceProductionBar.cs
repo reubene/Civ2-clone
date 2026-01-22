@@ -8,6 +8,7 @@ using Raylib_CSharp.Textures;
 using Raylib_CSharp.Transformations;
 using RaylibUI.Properties;
 using System.Numerics;
+using RaylibUtils;
 
 namespace RaylibUI.RunGame.GameControls.CityControls;
 
@@ -32,7 +33,7 @@ public class ResourceProductionBar : BaseControl
 
     public override void OnResize()
     {
-        AbsolutePosition = _resource.Bounds.ScaleAll(_cityWindow.Scale);
+        AbsolutePosition = _resource.Bounds.AsRl().ScaleAll(_cityWindow.Scale);
         base.OnResize();
         CalculateContents();
     }

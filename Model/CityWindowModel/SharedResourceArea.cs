@@ -1,5 +1,3 @@
-using Raylib_CSharp.Transformations;
-
 namespace Model;
 
 public class SharedResourceArea : ResourceArea

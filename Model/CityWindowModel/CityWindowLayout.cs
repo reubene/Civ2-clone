@@ -1,7 +1,5 @@
 using Model.CityWindowModel;
 using Model.Images;
-using Raylib_CSharp.Transformations;
-using System.Numerics;
 
 namespace Model;
 

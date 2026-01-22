@@ -1,6 +1,3 @@
-using Raylib_CSharp.Transformations;
-using System.Numerics;
-
 namespace Model;
 
 public class ResourceProduction
